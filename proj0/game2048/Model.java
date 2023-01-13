@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Yangrui Gong
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -118,9 +118,139 @@ public class Model extends Observable {
     public void tilt(Side side) {
         // TODO: Fill in this function.
 
+        if (side != Side.NORTH) {
+            _board.setViewingPerspective(side);
+        }
+
+        int TopRow = 3;
+        for (int col = 0; col < 4; col++) {
+            if (NumberOfFull(col) == 0) {
+                continue;
+            } else if (NumberOfFull(col) == 1) {
+                int row;
+                for (row = 3; row >= 0; row -= 1) {
+                    if (tile(col, row) != null) {
+                        break;
+                    }
+                }
+                Tile t1 = _board.tile(col, row);
+                if (tile(col, 3) == null) {
+                    _board.move(col, 3, t1);
+                }
+            } else if (NumberOfFull(col) == 2) {
+                int row1, row2;
+                row1 = RowOfFull(col, 3);
+                row2 = RowOfFull(col, row1 - 1);
+                if (tile(col, row1).value() == tile(col, row2).value()){
+                    _score += 2 * tile(col, row1).value();
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    t = _board.tile(col, row2);
+                    _board.move(col, 3, t);
+                } else {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    t = _board.tile(col, row2);
+                    _board.move(col, 2, t);
+                }
+            } else if (NumberOfFull(col) == 3) {
+                int row1, row2, row3;
+                row1 = RowOfFull(col, 3);
+                row2 = RowOfFull(col, row1 - 1);
+                row3 = RowOfFull(col, row2 - 1);
+                if (tile(col, row1).value() != tile(col, row2).value() && tile(col, row1).value() != tile(col, row3).value() && tile(col, row2).value() != tile(col, row3).value()) {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    t = _board.tile(col, row2);
+                    _board.move(col, 2, t);
+                    t =_board.tile(col, row3);
+                    _board.move(col, 1, t);
+                } else if (tile(col, row1).value() == tile(col, row2).value()) {
+                    TwoAdjacent(row1, row2, col, 3);
+                    Tile t = _board.tile(col, row3);
+                    _board.move(col, 2, t);
+                } else if (tile(col, row2).value() == tile(col, row3).value() && tile(col, row1).value() != tile(col, row3).value()) {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    TwoAdjacent(row2, row3, col, 2);
+                } else if (tile(col, row1).value() == tile(col, row3).value() && tile(col, row1).value() != tile(col, row2).value()) {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    t = _board.tile(col, row2);
+                    _board.move(col, 2, t);
+                    t =_board.tile(col, row3);
+                    _board.move(col, 1, t);
+                }
+            } else if (NumberOfFull(col) == 4) {
+                int row1 = 3, row2 = 2, row3 = 1, row4 = 0;
+                if (tile(col, row1).value() == tile(col, row2).value() && tile(col, row3).value() == tile(col, row4).value()) {
+                    TwoAdjacent(row1, row2, col, 3);
+                    TwoAdjacent(row3, row4, col, 2);
+                } else if (tile(col, row1).value() == tile(col, row2).value() && tile(col, row3).value() != tile(col, row4).value()) {
+                    TwoAdjacent(row1, row2, col, 3);
+                    Tile t = _board.tile(col, row3);
+                    _board.move(col, 2, t);
+                    t =_board.tile(col, row4);
+                    _board.move(col, 1, t);
+                } else if (tile(col, row1).value() != tile(col, row2).value() && tile(col, row3).value() == tile(col, row4).value() && tile(col, row3).value() != tile(col, row2).value()) {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    t =_board.tile(col, row2);
+                    _board.move(col, 2, t);
+                    TwoAdjacent(row3, row4, col, 1);
+                } else if (tile(col, row1).value() != tile(col, row2).value() && tile(col, row3).value() != tile(col, row4).value() && tile(col, row2).value() == tile(col, row3).value()) {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    TwoAdjacent(row2, row3, col, 2);
+                    t =_board.tile(col, row4);
+                    _board.move(col, 1, t);
+                } else if (tile(col, row1).value() != tile(col, row2).value() && tile(col, row3).value() != tile(col, row2).value() && tile(col, row3).value() != tile(col, row4).value() ) {
+                    ;
+                } else if (tile(col, row1).value() != tile(col, row2).value() && tile(col, row3).value() == tile(col, row4).value() && tile(col, row2).value() == tile(col, row3).value()) {
+                    Tile t = _board.tile(col, row1);
+                    _board.move(col, 3, t);
+                    TwoAdjacent(row2, row3, col, 2);
+                    t =_board.tile(col, row4);
+                    _board.move(col, 1, t);
+                }
+            }
+        }
+
+
+
+        if (side != Side.NORTH) {
+            _board.setViewingPerspective(Side.NORTH);
+        }
         checkGameOver();
     }
 
+    public int NumberOfFull(int col) {
+        int cnt = 0;
+        for (int row = 4 - 1; row >= 0; row -= 1) {
+            if (tile(col, row) != null) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
+    public int RowOfFull(int col, int row) {
+        int i;
+        for (i = row; i >= 0; i -= 1 ) {
+            if (tile(col, i) != null) {
+                break;
+            }
+        }
+        return i;
+    }
+
+    public void TwoAdjacent(int row1, int row2, int col, int des) {
+        Tile t = _board.tile(col, row1);
+        _board.move(col, des, t);
+        t =_board.tile(col, row2);
+        _board.move(col, des, t);
+        _score += tile(col, des).value();
+    }
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
      */
@@ -138,6 +268,13 @@ public class Model extends Observable {
      */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (b.tile(i, j) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +285,16 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (b.tile(i, j) == null) {
+                    continue;
+                }
+                if (b.tile(i, j).value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,6 +306,27 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (b.tile(i, j) == null || b.tile(i + 1, j) == null || b.tile(i, j + 1) == null) {
+                    return true;
+                } else if (b.tile(i, j).value() == b.tile(i + 1, j).value() || b.tile(i, j).value() == b.tile(i, j + 1).value()) {
+                    return true;
+                }
+            }
+        }
+        int col = 3;
+        for (int i = 0; i < 3; i++) {
+            if (b.tile(col, i).value() == b.tile(col, i + 1).value()) {
+                return true;
+            }
+        }
+        int row = 3;
+        for (int i = 0; i < 3; i++) {
+            if (b.tile(i, row).value() == b.tile(i + 1, row).value()) {
+                return true;
+            }
+        }
         return false;
     }
 
